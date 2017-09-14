@@ -24,6 +24,7 @@ import com.uchicom.term.Constants;
 import com.uchicom.term.action.CloseAction;
 import com.uchicom.term.action.ConnectAction;
 import com.uchicom.term.action.GoAction;
+import com.uchicom.ui.LineNumberView;
 import com.uchicom.ui.ResumeFrame;
 
 /**
@@ -46,10 +47,19 @@ public class TermFrame extends ResumeFrame {
 	 *	テキストエリア2つ、出力結果と入力欄とGOボタン
 	 */
 	private void initComponents() {
-		outputArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 10));
+		setTitle("Term 0.1");
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		outputArea.setFont(new Font(getString("font.size"), getInt("font.style", Font.PLAIN), getInt("font.size", 12)));
+		outputArea.setTabSize(getInt("tab.size", 4));
+		outputArea.setEditable(false);
+		inputArea.setFont(new Font(getString("font.size"), getInt("font.style", Font.PLAIN), getInt("font.size", 12)));
+		inputArea.setTabSize(getInt("tab.size", 4));
+		LineNumberView view = new LineNumberView(outputArea);
+		JScrollPane scrollPane = new JScrollPane(outputArea);
+		scrollPane.setRowHeaderView(view);
 		setJMenuBar(createJMenuBar());
 		getContentPane().setLayout(new BorderLayout());
-		getContentPane().add(new JScrollPane(outputArea), BorderLayout.CENTER);
+		getContentPane().add(scrollPane, BorderLayout.CENTER);
 		JPanel southPanel = new JPanel(new BorderLayout());
 		southPanel.add(new JScrollPane(inputArea), BorderLayout.CENTER);
 		southPanel.add(new JButton(new GoAction(this)), BorderLayout.EAST);
