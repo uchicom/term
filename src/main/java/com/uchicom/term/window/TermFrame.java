@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -37,6 +38,8 @@ public class TermFrame extends ResumeFrame {
 	private Session session;
 	private JTextArea outputArea = new JTextArea();
 	private JTextArea inputArea = new JTextArea();
+	JScrollPane scrollPane;
+
 	public TermFrame() {
 		super(Constants.configFile, Constants.KEY_WINDOW);
 
@@ -55,7 +58,7 @@ public class TermFrame extends ResumeFrame {
 		inputArea.setFont(new Font(getString("font.size"), getInt("font.style", Font.PLAIN), getInt("font.size", 12)));
 		inputArea.setTabSize(getInt("tab.size", 4));
 		LineNumberView view = new LineNumberView(outputArea);
-		JScrollPane scrollPane = new JScrollPane(outputArea);
+		scrollPane = new JScrollPane(outputArea);
 		scrollPane.setRowHeaderView(view);
 		setJMenuBar(createJMenuBar());
 		getContentPane().setLayout(new BorderLayout());
@@ -64,6 +67,8 @@ public class TermFrame extends ResumeFrame {
 		southPanel.add(new JScrollPane(inputArea), BorderLayout.CENTER);
 		southPanel.add(new JButton(new GoAction(this)), BorderLayout.EAST);
 		getContentPane().add(southPanel, BorderLayout.SOUTH);
+
+		JSch.setConfig("","");
 		pack();
 	}
 
@@ -141,7 +146,9 @@ public class TermFrame extends ResumeFrame {
             session.setPassword(config.getProperty(Constants.KEY_PASSWORD));
 		}
 		session.connect();
-		session.setServerAliveInterval(120);//キープアライブを送らなくても大丈夫な時間、これ以降はキープアライブが必要
+		session.setTimeout(60);
+		session.setServerAliveCountMax(100);
+		session.setServerAliveInterval(10);//キープアライブを送らなくても大丈夫な時間、これ以降はキープアライブが必要
 
 
 		return session;
@@ -172,12 +179,18 @@ public class TermFrame extends ResumeFrame {
 			inputArea.setText("");
 		} catch (JSchException e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, e.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, e.getMessage());
 		} finally {
 			if (channel != null) {
 				channel.disconnect();
 			}
+			scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
 		}
 	}
 
